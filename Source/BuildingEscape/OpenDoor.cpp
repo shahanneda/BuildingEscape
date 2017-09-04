@@ -18,19 +18,73 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	auto Owner = GetOwner();
 	
-	Owner->SetActorRotation(FRotator (0, 60, 0));
+	objectsThatCanOpen = GetWorld()->GetFirstPlayerController()->GetPawn();
+	
+		
 	// ...
+
 	
 }
+
+
 
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
 
-	// ...
+	if (objectsThatCanOpen == NULL || myTriggerVolume == NULL)
+	{
+		return;
+	}
+	isover = myTriggerVolume->IsOverlappingActor(objectsThatCanOpen);
+	if (isover) {
+		//UE_LOG(LogTemp, Warning, TEXT("Calling tope THE DOOR "));
+		OpenTheDoor();
+
+	}
+
+	if (GetWorld()->GetTimeSeconds() > timeWhenOpened + timeDoorStaysOpen) {
+		CloseTheDoor();
+	};
+	 
+	
 }
+
+
+void UOpenDoor::OpenTheDoor()
+{
+	
+	//UE_LOG(LogTemp, Warning, TEXT("OPENING THE DOOR "));
+
+	//Find the owning Actor
+	AActor* Owner = GetOwner();
+
+	// Create a rotator
+	FRotator NewRotation = FRotator(0.f, angle, 0.f);
+
+	// Set the door rotation
+	Owner->SetActorRotation(NewRotation);
+	
+	timeWhenOpened = GetWorld()->GetTimeSeconds();
+}
+
+void UOpenDoor::CloseTheDoor()
+{
+	isover = false;
+	
+	//Find the owning Actor
+	AActor* Owner = GetOwner();
+
+	// Create a rotator
+	FRotator NewRotation = FRotator(0.f, 90.f, 0.f);
+
+	// Set the door rotation
+	Owner->SetActorRotation(NewRotation);
+
+}
+
 
